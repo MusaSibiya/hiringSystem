@@ -39,9 +39,6 @@ public class EmployerPage extends Application {
 	private String employerAddress;
 	private User user;
 	private VBox vbox;
-	private Label nameLabel;
-	private Label emailLabel;
-	private Label provinceLabel;
 	private VBox jobPostingsContainer;
 	List<Transaction<String>> transactionBuffer;
     private final int MAX_TRANSACTIONS_PER_BLOCK = 3; 
@@ -52,6 +49,8 @@ public class EmployerPage extends Application {
 	    this.transactionBuffer = new ArrayList<>();
 		this.jobPostingsContainer = new VBox(); // 
 	}
+	VBox profileInfoBox = new VBox();
+	Button editProfileButton = new Button("Edit Profile");
 	@Override
 	public void start(Stage primaryStage) {
 		primaryStage.setTitle("Employer Page");
@@ -73,15 +72,15 @@ public class EmployerPage extends Application {
     	ImageView profileImage = new ImageView(new Image("/musa.jpg"));
         
     	Button postJobButton = new Button("Post Job");
-    	Button editProfileButton = new Button("Edit Profile");
+    	
     	Button viewBlockchainButton = new Button("View Applicants");
-    	Hyperlink profileLink = new Hyperlink("", new VBox(profileImage, profileLabel));
-    	VBox profileInfoBox = new VBox();
+    	//Hyperlink profileLink = new Hyperlink("", new VBox(profileImage, profileLabel));
+    	
         
     	jobTitleLabel.setStyle("-fx-text-fill: white;");
     	jobSkillsLabel.setStyle("-fx-text-fill: white;");
          profileInfoBox.setStyle("#19376D");
-         profileLink.setStyle("-fx-text-fill: white;");
+        // profileLink.setStyle("-fx-text-fill: white;");
      	 profileLabel.setStyle("-fx-text-fill: white;");
          postJobButton.setStyle("-fx-background-color: #576CBC; -fx-text-fill: #A5D7E8;");
      	 viewBlockchainButton.setStyle("-fx-background-color: #576CBC;"+"-fx-text-fill: #A5D7E8;");
@@ -108,6 +107,7 @@ public class EmployerPage extends Application {
 		    String jobTitle = jobTitleField.getText();
 			String jobSkills = jobSkillsField.getText(); 
 		    createJobPosting(jobTitle, jobSkills);
+		 //   processRemainingTransactions();
 		  //  if (blockchain!=null) {System.out.print(BlockchainHolder.blockchain);}
 		});
         
@@ -116,10 +116,12 @@ public class EmployerPage extends Application {
       ////////////////////////////////////////////////
 	//viewBlockchainButton.setOnAction(e -> {});
 	///////////////////////////////////////////////
-		profileLink.setOnAction(e -> {
+		
 			profileInfoBox.getChildren().clear();
 			Label nameLabel = new Label("Name: " + user.getName());
 			nameLabel.setStyle("-fx-text-fill: white;");
+			Label usernameLabel = new Label("Username: " + user.getUsername());
+			usernameLabel.setStyle("-fx-text-fill: white;");
 			Label emailLabel = new Label("Email: " + user.getEmail());
 			emailLabel.setStyle("-fx-text-fill: white;");
 			Label roleLabel = new Label("Role: " + user.getRole());
@@ -130,10 +132,9 @@ public class EmployerPage extends Application {
 			profileInfoBox.getChildren().addAll(nameLabel, emailLabel, 
 					roleLabel, provinceLabel,editProfileButton);
 	
-		});
-		HBox profileBox = new HBox(profileLink, profileInfoBox);
+		HBox profileBox = new HBox(profileImage, profileInfoBox);
 		profileBox.setAlignment(Pos.TOP_RIGHT);
-		
+		profileBox.setSpacing(10);
 ////////////////////////////////////////////////
 		// Create the hyperlink
 		Hyperlink switchToEmployeePageLink = new Hyperlink("Switch to Employee Page\n"+
@@ -175,6 +176,7 @@ public class EmployerPage extends Application {
 	/////////////////////////////////////////////
 Blockchain<String> blockchain=BlockchainHolder.blockchain;
 
+
 	public void createJobPosting(String jobTitle,String jobSkills) {
 		 // Combine job title and skills into one job description string
 	    String jobDescription = jobTitle + ", Skills Required: " + jobSkills;
@@ -197,11 +199,24 @@ Blockchain<String> blockchain=BlockchainHolder.blockchain;
 	        lastBlockHash = block.getHash();
 	        // Clear the buffer for the next block
 	        transactionBuffer.clear();
-	    }
+	    } 
 
 	    // Update the UI with the new job posting
 	    updateJobPostingsUI(jobTransaction); 
 	}
+///////////////////////////////////////////
+/**	public void processRemainingTransactions() {
+	    if (!transactionBuffer.isEmpty()) {
+	        // Create a new block with the remaining transactions
+	        Block<String> block = new Block<>(lastBlockHash, new ArrayList<>(transactionBuffer));
+	        // Add the block to the blockchain
+	        blockchain.addBlock(transactionBuffer);
+	        // Update the last block's hash with the new block's hash
+	        lastBlockHash = block.getHash();
+	        // Clear the buffer for the next block
+	        transactionBuffer.clear();
+	    }
+	}*/
 
 	//////////////////////////////////////////////
 	public void updateJobPostingsUI(Transaction<String> jobTransaction) {
@@ -216,49 +231,69 @@ Blockchain<String> blockchain=BlockchainHolder.blockchain;
 	}
 	//////////////////////////////////////////////////////////////////////
 	private void showEditDialog() {
-        Dialog<User> editDialog = new Dialog<>();
-        editDialog.setTitle("Edit Profile");
-        editDialog.setHeaderText("Update your profile information");
-     DialogPane dialogPane = editDialog.getDialogPane();
-     dialogPane.setStyle("-fx-background-color:#19376D");
-        // Create input fields for editing
-        TextField nameField = new TextField(user.getName());
-        TextField emailField = new TextField(user.getEmail());
-       // TextField roleField = new TextField(user.getRole());
-        TextField provinceField = new TextField(user.getProvince());
-      ;
+	    Dialog<User> editDialog = new Dialog<>();
+	    editDialog.setTitle("Edit Profile");
+	    editDialog.setHeaderText("Update your profile information");
 
-        // Add input fields to the dialog
-        editDialog.getDialogPane().setContent(new VBox(
-        		  new Label("Name:"), nameField,
-	                new Label("Email:"), emailField,
-	               // new Label("Role:"), roleField,
-	                new Label("Province:"), provinceField
-        ));
+	    DialogPane dialogPane = editDialog.getDialogPane();
+	    dialogPane.setStyle("-fx-background-color:#19376D");
 
-        // Set dialog buttons
-        ButtonType saveButtonType = new ButtonType("Save", ButtonBar.ButtonData.OK_DONE);
-        editDialog.getDialogPane().getButtonTypes().addAll(saveButtonType, ButtonType.CANCEL);
+	    // Initialize labels
+	    Label nameLabel = new Label("Name: " );
+	    Label usernameLabel = new Label("Username:");
+	    Label emailLabel = new Label("Email: " );
+	    Label provinceLabel = new Label("Province: " );
+	 
+        nameLabel.setStyle("-fx-text-fill: white;"); // Sets the text color to white
+        usernameLabel.setStyle("-fx-text-fill: white;");
+  
+        emailLabel.setStyle("-fx-text-fill: white;");
 
-        // Handle button actions
-        editDialog.setResultConverter(dialogButton -> {
-            if (dialogButton == saveButtonType) {
-                user.setName(nameField.getText());
-                user.setEmail(emailField.getText());
-                //user.setRole(roleField.getText());
-                user.setProvince(provinceField.getText());
+       provinceLabel.setStyle("-fx-text-fill: white;");
+	    // Create input fields for editing
+	    TextField nameField = new TextField(user.getName());
+	    TextField usernameField = new TextField(user.getUsername());
+	    TextField emailField = new TextField(user.getEmail());
+	    TextField provinceField = new TextField(user.getProvince());
 
-                // Update corresponding labels in your UI
-                nameLabel.setText("Name: " + user.getName());
-                emailLabel.setText("Email: " + user.getEmail());
-               // roleLabel.setText("Role: " + user.getRole());
-                provinceLabel.setText("Province: " + user.getProvince());
-            }
-            return null;
-        });
-        editDialog.showAndWait();
-    }
-	
+	    // Add input fields and labels to the dialog
+	    VBox content = new VBox(10); // 10 is the spacing between elements
+	    content.getChildren().addAll(
+	        nameLabel, nameField,
+	        usernameLabel,usernameField,
+	        emailLabel, emailField,
+	        provinceLabel, provinceField
+	    );
+	    editDialog.getDialogPane().setContent(content);
+
+	    // Set dialog buttons
+	    ButtonType saveButtonType = new ButtonType("Save", ButtonBar.ButtonData.OK_DONE);
+	    editDialog.getDialogPane().getButtonTypes().addAll(saveButtonType, ButtonType.CANCEL);
+
+	    // Handle button actions
+	    editDialog.setResultConverter(dialogButton -> {
+	        if (dialogButton == saveButtonType) {
+	            user.setName(nameField.getText());
+	            user.setUsername(usernameField.getText());
+	            user.setEmail(emailField.getText());
+	            user.setProvince(provinceField.getText());
+
+	            // Update corresponding labels with the new values
+	            nameLabel.setText("Name: " + user.getName());
+	            usernameLabel.setText("Username: " + user.getUsername());
+	            emailLabel.setText("Email: " + user.getEmail());
+	            provinceLabel.setText("Province: " + user.getProvince());
+	            
+	            // Refresh the profileInfoBox to show updated labels
+	            profileInfoBox.getChildren().setAll(nameLabel,usernameLabel, emailLabel, provinceLabel, editProfileButton);
+	        }
+	        return null;
+	    });
+
+	    editDialog.showAndWait();
+	}
+
+
 	///////////////////////////////////////////////////////////////////
 	 
 	public static void main(String[] args) {
