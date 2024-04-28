@@ -34,6 +34,7 @@ public class EmployeePage extends Application {
 	private TextField skillsField; 
     private ScrollPane scrollPane;
 	private TextFlow textFlow;
+	
 	 
 	public EmployeePage(String employeeAddress, User user) {
 		//this.blockchain = BlockchainHolder.blockchain;
@@ -41,8 +42,9 @@ public class EmployeePage extends Application {
 		this.user = user;
 	}
 	TextArea jobApplicationField = new TextArea();
+    Button editProfileButton = new Button("Edit Profile");
 	EmployerPage employerPage = new EmployerPage(employeeAddress, user);
-
+	VBox profileInfoBox = new VBox();
 	@Override
 	public void start(Stage primaryStage) {
 		primaryStage.setTitle("Employee Page");
@@ -60,21 +62,18 @@ public class EmployeePage extends Application {
 		textFlow = new TextFlow();
 		
 		HBox guideBox = new HBox(guide);
-		VBox profileInfoBox = new VBox();
+		
 	    StackPane root = new StackPane();
 	    ImageView profileImage = new ImageView(new Image("/musa1.jpg"));
-	    Hyperlink profileLink = new Hyperlink(" ", new VBox(profileImage, profileLabel));
+	   // Hyperlink profileLink = new Hyperlink(" ", new VBox(profileImage, profileLabel));
 	    Hyperlink switchToEmployerPageLink = new Hyperlink("Switch to Employer Page\n"+"for testing purposes");
-	    HBox profileBox = new HBox(profileLink, profileInfoBox);
+	    HBox profileBox = new HBox(profileImage, profileInfoBox);
 	    HBox profileContainer = new HBox(profileBox);
 		HBox profileGuide = new HBox(guide,profileContainer);
 		HBox.setHgrow(guideBox, Priority.ALWAYS);
 		HBox.setHgrow(profileContainer, Priority.ALWAYS);
 	    
-	    
 	    Button viewAvailableJobButton = new Button("Match Skills ");
-	    Button editProfileButton = new Button("Edit Profile");
-		
 
 		jobA.setStyle("-fx-text-fill: white;");
 	    SkillsLabel.setStyle("-fx-text-fill: white;");
@@ -106,6 +105,7 @@ public class EmployeePage extends Application {
 		profileContainer.setAlignment(Pos.TOP_RIGHT);
 		profileGuide.setAlignment(Pos.TOP_CENTER);
 		profileGuide.setSpacing(10);
+		profileBox.setSpacing(10);
 		jobApplicationField.setPrefHeight(75);
 	    scrollPane.setFitToWidth(true);
 	    scrollPane.setPrefHeight(90); 
@@ -121,22 +121,23 @@ public class EmployeePage extends Application {
 	    editProfileButton.setOnAction(e -> showEditDialog());
 	        
 	   ////////////////////////////////////////////////////////////////      
-	    profileLink.setOnAction(e -> {
-			// Clear old profile info
+		
 			profileInfoBox.getChildren().clear();
 			Label nameLabel = new Label("Name: " + user.getName());
 			nameLabel.setStyle("-fx-text-fill: white;");
+			Label usernameLabel = new Label("Username: " + user.getUsername());
+			usernameLabel.setStyle("-fx-text-fill: white;");
 			Label emailLabel = new Label("Email: " + user.getEmail());
 			emailLabel.setStyle("-fx-text-fill: white;");
 			Label roleLabel = new Label("Role: " + user.getRole());
 			roleLabel.setStyle("-fx-text-fill: white;");
 			Label provinceLabel = new Label("Province: " + user.getProvince());
 			provinceLabel.setStyle("-fx-text-fill: white;");
-
+			
 			profileInfoBox.getChildren().addAll(nameLabel, emailLabel, 
-					roleLabel, provinceLabel,
-					editProfileButton);
-	        });
+					roleLabel, provinceLabel,editProfileButton);
+	
+	
              ////////////////////////////////////////////////////////
 				switchToEmployerPageLink.setOnAction(e -> {
 					
@@ -301,57 +302,69 @@ public class EmployeePage extends Application {
 	    /**
 	     * TO DO Save and change actual user info on userss dat
 	     */
-		private void showEditDialog() {
-	        Dialog<User> editDialog = new Dialog<>();
-	        editDialog.setTitle("Edit Profile");
-	        editDialog.setHeaderText("Update your profile information");
-	     DialogPane dialogPane = editDialog.getDialogPane();
-	     dialogPane.setStyle("-fx-background-color:#19376D");
-	        // Create input fields for editing
-	        TextField nameField = new TextField(user.getName());
-	        TextField emailField = new TextField(user.getEmail());
-	       // TextField roleField = new TextField(user.getRole());
-	        TextField provinceField = new TextField(user.getProvince());
-	        Label nameLabel = new Label("Name:");
-	        nameLabel.setStyle("-fx-text-fill: white;"); // Sets the text color to white
+	    private void showEditDialog() {
+		    Dialog<User> editDialog = new Dialog<>();
+		    editDialog.setTitle("Edit Profile");
+		    editDialog.setHeaderText("Update your profile information");
 
-	        Label emailLabel = new Label("Email:");
+		    DialogPane dialogPane = editDialog.getDialogPane();
+		    dialogPane.setStyle("-fx-background-color:#19376D");
+
+		    // Initialize labels
+		    Label nameLabel = new Label("Name: " );
+		    Label usernameLabel = new Label("Username:");
+		    Label emailLabel = new Label("Email: " );
+		    Label provinceLabel = new Label("Province: " );
+		 
+	        nameLabel.setStyle("-fx-text-fill: white;"); // Sets the text color to white
+	        usernameLabel.setStyle("-fx-text-fill: white;");
+	  
 	        emailLabel.setStyle("-fx-text-fill: white;");
 
-Label provinceLabel = new Label("Province:");
-provinceLabel.setStyle("-fx-text-fill: white;");
+	       provinceLabel.setStyle("-fx-text-fill: white;");
+		    // Create input fields for editing
+		    TextField nameField = new TextField(user.getName());
+		    TextField usernameField = new TextField(user.getUsername());
+		    TextField emailField = new TextField(user.getEmail());
+		    TextField provinceField = new TextField(user.getProvince());
 
-	        // Add input fields to the dialog
-	        editDialog.getDialogPane().setContent(new VBox(
-	                nameLabel, nameField,
-	              emailLabel, emailField,
-	               // new Label("Role:"), roleField,
-	              provinceLabel, provinceField
-	        ));
+		    // Add input fields and labels to the dialog
+		    VBox content = new VBox(10); // 10 is the spacing between elements
+		    content.getChildren().addAll(
+		        nameLabel, nameField,
+		        usernameLabel,usernameField,
+		        emailLabel, emailField,
+		        provinceLabel, provinceField
+		    );
+		    editDialog.getDialogPane().setContent(content);
 
-	        // Set dialog buttons
-	        ButtonType saveButtonType = new ButtonType("Save", ButtonBar.ButtonData.OK_DONE);
-	        editDialog.getDialogPane().getButtonTypes().addAll(saveButtonType, ButtonType.CANCEL);
+		    // Set dialog buttons
+		    ButtonType saveButtonType = new ButtonType("Save", ButtonBar.ButtonData.OK_DONE);
+		    editDialog.getDialogPane().getButtonTypes().addAll(saveButtonType, ButtonType.CANCEL);
 
-	        // Handle button actions
-	        editDialog.setResultConverter(dialogButton -> {
-	            if (dialogButton == saveButtonType) {
-	                user.setName(nameField.getText());
-	                user.setEmail(emailField.getText());
-	                //user.setRole(roleField.getText());
-	                user.setProvince(provinceField.getText());
+		    // Handle button actions
+		    editDialog.setResultConverter(dialogButton -> {
+		        if (dialogButton == saveButtonType) {
+		            user.setName(nameField.getText());
+		            user.setUsername(usernameField.getText());
+		            user.setEmail(emailField.getText());
+		            user.setProvince(provinceField.getText());
 
-	                // Update corresponding labels in your UI
-	                nameLabel.setText("Name: " + user.getName());
-	                emailLabel.setText("Email: " + user.getEmail());
-	               // roleLabel.setText("Role: " + user.getRole());
-	                provinceLabel.setText("Province: " + user.getProvince());
-	            }
-	            return null;
-	        });
+		            // Update corresponding labels with the new values
+		            nameLabel.setText("Name: " + user.getName());
+		            usernameLabel.setText("Username: " + user.getUsername());
+		            emailLabel.setText("Email: " + user.getEmail());
+		            provinceLabel.setText("Province: " + user.getProvince());
+		            
+		            // Refresh the profileInfoBox to show updated labels
+		            profileInfoBox.getChildren().setAll(nameLabel,usernameLabel, emailLabel, provinceLabel, editProfileButton);
+		        }
+		        return null;
+		    });
 
-	        editDialog.showAndWait();
-	    }
+		    editDialog.showAndWait();
+		}
+
 //////////////////////////////////////////////////////////////////////////////
 	public static void main(String[] args) {
 		launch(args);
