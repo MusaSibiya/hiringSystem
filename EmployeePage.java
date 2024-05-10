@@ -26,30 +26,29 @@ import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 
 
-public class EmployeePage extends Application {
+public class EmployeePage extends StackPane {
 
-	private String employeeAddress;
-	private User user;
+	private String employeeID;
+	//private User user;
 	private VBox vbox;
 	private TextField skillsField; 
     private ScrollPane scrollPane;
 	private TextFlow textFlow;
 	
-	 
-	public EmployeePage(String employeeAddress, User user) {
+	User user = new User(employeeID, employeeID, employeeID, employeeID, employeeID, employeeID, null);
+	public EmployeePage(User user) {
 		//this.blockchain = BlockchainHolder.blockchain;
-		this.employeeAddress = employeeAddress;
+		this.employeeID = user.getUsername();
 		this.user = user;
 	}
 	TextArea jobApplicationField = new TextArea();
     Button editProfileButton = new Button("Edit Profile");
-	EmployerPage employerPage = new EmployerPage(employeeAddress, user);
+	EmployerPage employerPage = new EmployerPage(user);
 	VBox profileInfoBox = new VBox();
-	@Override
 	public void start(Stage primaryStage) {
 		primaryStage.setTitle("Employee Page");
 		
-		Label jobA =  new Label("Write your Motivation Letter");
+		Label jobA =  new Label("Enter Your Qualification");
 		Label profileLabel = new Label("Profile");
 	    Label SkillsLabel= new Label("Enter your Skills");
 	    Label welcomeLabel = new Label("Welcome to Employee Page!");
@@ -66,7 +65,7 @@ public class EmployeePage extends Application {
 	    StackPane root = new StackPane();
 	    ImageView profileImage = new ImageView(new Image("/musa1.jpg"));
 	   // Hyperlink profileLink = new Hyperlink(" ", new VBox(profileImage, profileLabel));
-	    Hyperlink switchToEmployerPageLink = new Hyperlink("Switch to Employer Page\n"+"for testing purposes");
+	   // Hyperlink switchToEmployerPageLink = new Hyperlink("Switch to Employer Page\n"+"for testing purposes");
 	    HBox profileBox = new HBox(profileImage, profileInfoBox);
 	    HBox profileContainer = new HBox(profileBox);
 		HBox profileGuide = new HBox(guide,profileContainer);
@@ -77,7 +76,7 @@ public class EmployeePage extends Application {
 
 		jobA.setStyle("-fx-text-fill: white;");
 	    SkillsLabel.setStyle("-fx-text-fill: white;");
-		switchToEmployerPageLink.setStyle("-fx-text-fill: #A5D7E8;");
+	//	switchToEmployerPageLink.setStyle("-fx-text-fill: #A5D7E8;");
 		viewAvailableJobButton.setStyle("-fx-background-color: #576CBC;"+ "-fx-text-fill: #A5D7E8;");
         welcomeLabel.setStyle("-fx-font-size: 18px; -fx-font-weight:"	+ " bold; -fx-text-fill: white;");
         editProfileButton.setStyle("-fx-background-color: #576CBC; "+ "-fx-text-fill: #A5D7E8;");
@@ -89,9 +88,9 @@ public class EmployeePage extends Application {
 	               "-fx-border-width: 1px;"); 
         
         scrollPane = new ScrollPane(textFlow); //  read-only
-    	skillsField.setPromptText(" e.g Java,Problem Solving,Dancer");
-    	jobApplicationField.setPromptText("Enter your Skills :\r" +
-			       "Enter years of experience :\r" +
+    	skillsField.setPromptText(" e.g Java,Python,Dancer");
+    	jobApplicationField.setPromptText("BSc in Computer Science :\r" +
+			       "Enter years of experience if applicable:\r" +
 			       "A brief statement about career goals:\r");
 		
     
@@ -139,24 +138,24 @@ public class EmployeePage extends Application {
 	
 	
              ////////////////////////////////////////////////////////
-				switchToEmployerPageLink.setOnAction(e -> {
+			/**	switchToEmployerPageLink.setOnAction(e -> {
 					
 					try {
 						employerPage.start(new Stage());
 					} catch (Exception ex) {
 						ex.printStackTrace();
 					}
-				});
+				});*/
             //////////////////////////////////////////////////////////
 			
 				vbox = new VBox();
-				vbox.getChildren().add(switchToEmployerPageLink);
-				   HBox hSwitch = new HBox(switchToEmployerPageLink);
-				   hSwitch.setAlignment(Pos.BOTTOM_RIGHT);
+				//vbox.getChildren().add(switchToEmployerPageLink);
+				 //  HBox hSwitch = new HBox(switchToEmployerPageLink);
+				 //  hSwitch.setAlignment(Pos.BOTTOM_RIGHT);
 
 	         	vbox = new VBox(welcomeLabel,profileGuide,SkillsLabel ,
 				skillsField,viewAvailableJobButton,scrollPane,jobA,
-				jobApplicationField,hSwitch);
+				jobApplicationField);
 		        vbox.setPadding(new Insets(10));
 	         	vbox.setSpacing(8);
 		
@@ -169,28 +168,28 @@ public class EmployeePage extends Application {
 ///////////////////////////////////////////////////////////////////////////
 	
 	 // Method to extract job postings from the blockchain string representation
-		Blockchain<String> blockchain=BlockchainHolder.blockchain;
-	//////////////////////////////////////////////////////////////////////
-	public void applyForJob( String jobPosted ,String employeeProfile, String briefDescription ) {
-		briefDescription = jobApplicationField.getText();
-		 employeeProfile = "Name: " + user.getName() +
-                  ", Email: " + user.getEmail() +
-                  ", Province: " + user.getProvince();
-	    // Create a transaction with the employee's application
-		String jobApplication = employeeProfile + ", \nBrief Description: " + briefDescription;
-	    Transaction<String> applicationTransaction = 
-	    		new Transaction<>(employeeAddress,"Job Board", jobApplication);
-	    List<Transaction<String>> transactions = new ArrayList<>();
-	    transactions.add(applicationTransaction);
-	    blockchain.addBlock(transactions);
-	    // Prepare transaction details for confirmation
-	    String transactionDetails = "Applied for: " + jobPosted + 
-	    		"\n Application Details: "+jobApplication;
-	  
-		showConfirmationDialog(transactionDetails) ;
-	      
-	 System.out.println(blockchain);
-	}
+	Blockchain<HiringService> blockchain=BlockchainHolder.blockchain;
+//////////////////////////////////////////////////////////////////////
+public void applyForJob( String jobPosted ,String employeeProfile, String briefDescription ) {
+	briefDescription = jobApplicationField.getText();
+	 employeeProfile = "EmployeeID: " + user.getUsername() +
+             ", Email: " + user.getEmail() +
+             ", Province: " + user.getProvince();
+    // Create a transaction with the employee's application
+	JobApplication jobApplication = new JobApplication(employeeProfile, briefDescription);
+    Transaction<HiringService> applicationTransaction = new Transaction<>(employeeID,"Job Board", jobApplication);
+    List<Transaction<HiringService>> transactions = new ArrayList<>();
+    transactions.add(applicationTransaction);
+    blockchain.addBlock(transactions);
+    // Prepare transaction details for confirmation
+    String transactionDetails = "Applied for: " + jobPosted + 
+    		"\n Application Details: "+jobApplication;
+  
+	showConfirmationDialog(transactionDetails) ;
+      
+ System.out.println(blockchain);
+}
+
 	
 	/////////////////////////////////////////////////////////////////
 	public List<String> extractJobPostings() {
@@ -206,6 +205,33 @@ public class EmployeePage extends Application {
 
 	    return jobPostings;
 	}
+	 /////////////////////////////////////////////////
+    public List<String> matchJobPostingsWithSkills(String employeeSkills) {
+        List<String> matchedJobPostings = new ArrayList<>();
+        List<String> jobPostings = extractJobPostings(); // Make sure this method is correctly implemented
+
+        // Split the employee's skills into a list
+        List<String> employeeSkillList = Arrays.asList(employeeSkills.split("\\s*,\\s*"));
+       // System.out.println("Employee Skills List: " + employeeSkillList);
+
+        for (String jobPosting : jobPostings) {
+            // Assume the job posting format is "Job Title, Skills Required: skill1, skill2, ..."
+            String[] parts = jobPosting.split(", Skills Required: ");
+            if (parts.length < 2) continue; // Skip if the format is not correct
+
+            List<String> requiredSkills = Arrays.asList(parts[1].split("\\s*,\\s*"));
+            System.out.println("Required Skills for " + parts[0] + ": " + requiredSkills);
+
+            // Check if the employee has all the required skills
+            if (employeeSkillList.containsAll(requiredSkills)) {
+                matchedJobPostings.add(jobPosting);
+                System.out.println("Match found: " + jobPosting);
+            }
+        }
+
+        System.out.println("Matched Job Postings: " + matchedJobPostings);
+        return matchedJobPostings;
+    }
 
 //////////////////////////////////////////////////////////////////
 	public void displayMatchedJobs() {
@@ -233,7 +259,7 @@ public class EmployeePage extends Application {
 	                // Get the brief description from the TextArea
 	                String briefDescription = jobApplicationField.getText();
 	                // Construct the employee profile string
-	                String employeeProfile = "Name: " + user.getName() +
+	                String employeeProfile = "EmployeeID: " + user.getUsername() +
 	                                         ", Email: " + user.getEmail() +
 	                                         ", Province: " + user.getProvince();
 	                // Call the applyForJob method with the job posting, profile, and brief description
@@ -270,34 +296,7 @@ public class EmployeePage extends Application {
 	    alert.showAndWait();
 	}
 
-   /////////////////////////////////////////////////
-	    public List<String> matchJobPostingsWithSkills(String employeeSkills) {
-	        List<String> matchedJobPostings = new ArrayList<>();
-	        List<String> jobPostings = extractJobPostings(); // Make sure this method is correctly implemented
-
-	        // Split the employee's skills into a list
-	        List<String> employeeSkillList = Arrays.asList(employeeSkills.split("\\s*,\\s*"));
-	       // System.out.println("Employee Skills List: " + employeeSkillList);
-
-	        for (String jobPosting : jobPostings) {
-	            // Assume the job posting format is "Job Title, Skills Required: skill1, skill2, ..."
-	            String[] parts = jobPosting.split(", Skills Required: ");
-	            if (parts.length < 2) continue; // Skip if the format is not correct
-
-	            List<String> requiredSkills = Arrays.asList(parts[1].split("\\s*,\\s*"));
-	            System.out.println("Required Skills for " + parts[0] + ": " + requiredSkills);
-
-	            // Check if the employee has all the required skills
-	            if (employeeSkillList.containsAll(requiredSkills)) {
-	                matchedJobPostings.add(jobPosting);
-	                System.out.println("Match found: " + jobPosting);
-	            }
-	        }
-
-	        System.out.println("Matched Job Postings: " + matchedJobPostings);
-	        return matchedJobPostings;
-	    }
-
+  
 ////////////////////////////////////////////////////////////////
 	    /**
 	     * TO DO Save and change actual user info on userss dat
@@ -366,8 +365,5 @@ public class EmployeePage extends Application {
 		}
 
 //////////////////////////////////////////////////////////////////////////////
-	public static void main(String[] args) {
-		launch(args);
-		
-	}
+	
 }
